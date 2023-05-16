@@ -1,6 +1,7 @@
 package com.example.wallet.controller;
 
 import com.example.wallet.dto.request.RegisterUserRequestBody;
+import com.example.wallet.dto.response.ResponseMessage;
 import com.example.wallet.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterUserRequestBody requestBody) {
+    public ResponseEntity<ResponseMessage> registerUser(@RequestBody RegisterUserRequestBody requestBody) {
         authService.registerUser(
                 requestBody.firstName(),
                 requestBody.lastName(),
@@ -25,6 +26,6 @@ public class AuthController {
                 requestBody.password()
         );
 
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(new ResponseMessage(true));
     }
 }

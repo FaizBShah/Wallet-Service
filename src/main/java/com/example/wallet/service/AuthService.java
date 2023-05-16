@@ -2,9 +2,11 @@ package com.example.wallet.service;
 
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
+import com.example.wallet.exception.AppException;
 import com.example.wallet.repository.UserRepository;
 import com.example.wallet.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +20,7 @@ public class AuthService {
 
     public User registerUser(String firstName, String lastName, String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalStateException("User Already Exists");
+            throw new AppException(HttpStatus.BAD_REQUEST, "User Already Exists");
         }
 
         Wallet wallet = walletRepository.save(new Wallet());
