@@ -4,9 +4,14 @@ import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
 import com.example.wallet.repository.UserRepository;
-import com.example.wallet.repository.WalletRepository;
+import com.example.wallet.security.jwt.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,7 +21,13 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private WalletRepository walletRepository;
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JWTUtils jwtUtils;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public User registerUser(String firstName, String lastName, String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
@@ -27,12 +38,17 @@ public class AuthService {
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .wallet(new Wallet())
                 .locked(false)
                 .enabled(true)
                 .build();
 
         return userRepository.save(user);
+    }
+
+    public String loginUser(String email, String password) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        return jwtUtils.generateJwtToken(authentication);
     }
 }
