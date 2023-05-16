@@ -23,14 +23,12 @@ public class AuthService {
             throw new AppException(HttpStatus.BAD_REQUEST, "User Already Exists");
         }
 
-        Wallet wallet = walletRepository.save(new Wallet());
-
         User user = User.builder()
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)
                 .password(password)
-                .wallet(wallet)
+                .wallet(new Wallet())
                 .locked(false)
                 .enabled(true)
                 .build();
