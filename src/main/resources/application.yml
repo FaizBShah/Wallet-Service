@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/wallet
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  expirationMs: 172800000
