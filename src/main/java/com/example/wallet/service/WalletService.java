@@ -1,5 +1,6 @@
 package com.example.wallet.service;
 
+import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
 import com.example.wallet.repository.WalletRepository;
@@ -34,5 +35,9 @@ public class WalletService {
         wallet.setAmount(newAmount);
 
         return walletRepository.save(wallet).getAmount();
+    }
+
+    public Wallet getUserWallet(User user) {
+        return user.getWallet();
     }
 }
