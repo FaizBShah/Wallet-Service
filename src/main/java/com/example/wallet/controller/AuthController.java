@@ -5,6 +5,7 @@ import com.example.wallet.dto.request.RegisterUserRequestBody;
 import com.example.wallet.dto.response.LoginSuccessResponseMessage;
 import com.example.wallet.dto.response.ResponseMessage;
 import com.example.wallet.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,8 +33,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginSuccessResponseMessage> loginUser(@RequestBody LoginUserRequestBody requestBody) {
-        String token = authService.loginUser(requestBody.email(), requestBody.password());
+    public ResponseEntity<LoginSuccessResponseMessage> loginUser(@RequestBody LoginUserRequestBody requestBody, HttpServletRequest request) {
+        String token = authService.loginUser(requestBody.email(), requestBody.password(), request);
         return ResponseEntity.ok(new LoginSuccessResponseMessage(true, token));
     }
 }

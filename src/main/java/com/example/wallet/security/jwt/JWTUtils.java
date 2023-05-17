@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.wallet.entity.User;
 import com.example.wallet.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -60,5 +61,15 @@ public class JWTUtils {
         }
 
         return decodedJWT.getSubject();
+    }
+
+    public String parseJwtToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.trim().length() > 7 && authHeader.startsWith("Bearer ")) {
+            return authHeader.trim().substring(7);
+        }
+
+        return null;
     }
 }

@@ -4,6 +4,7 @@ import com.example.wallet.entity.User;
 import com.example.wallet.exception.AppException;
 import com.example.wallet.repository.UserRepository;
 import com.example.wallet.security.jwt.JWTUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -89,31 +90,59 @@ class AuthServiceTest {
     @Test
     void shouldLoginUserWorkProperly() {
         Authentication mockAuthentication = mock(Authentication.class);
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         String jwtToken = "eybghttruq";
 
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(jwtUtils.parseJwtToken(mockRequest)).thenReturn(null);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mockAuthentication);
         when(jwtUtils.generateJwtToken(mockAuthentication)).thenReturn(jwtToken);
 
-        String generatedToken = authService.loginUser(user.getEmail(), user.getPassword());
+        String generatedToken = authService.loginUser(user.getEmail(), user.getPassword(), mockRequest);
 
         assertEquals(jwtToken, generatedToken);
 
         verify(userRepository, times(1)).findByEmail(user.getEmail());
+        verify(jwtUtils, times(1)).parseJwtToken(mockRequest);
+        verify(jwtUtils, never()).validateJwtToken(anyString());
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtUtils, times(1)).generateJwtToken(mockAuthentication);
     }
 
     @Test
     void shouldThrowAnErrorIfUserDoesNotHaveAnyAccount() {
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
-        AppException exception = assertThrows(AppException.class, () -> authService.loginUser(user.getEmail(), user.getPassword()));
+        AppException exception = assertThrows(AppException.class, () -> authService.loginUser(user.getEmail(), user.getPassword(), mockRequest));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("User does not have an account", exception.getMessage());
 
         verify(userRepository, times(1)).findByEmail(user.getEmail());
+        verify(jwtUtils, never()).parseJwtToken(mockRequest);
+        verify(jwtUtils, never()).validateJwtToken(anyString());
+        verify(authenticationManager, never()).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtUtils, never()).generateJwtToken(any(Authentication.class));
+    }
+
+    @Test
+    void shouldThrowAnErrorIfUserIsAlreadyLoggedIn() {
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        String jwtToken = "abcdefg";
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(jwtUtils.parseJwtToken(mockRequest)).thenReturn(jwtToken);
+        when(jwtUtils.validateJwtToken(jwtToken)).thenReturn("result");
+
+        AppException exception = assertThrows(AppException.class, () -> authService.loginUser(user.getEmail(), user.getPassword(), mockRequest));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("User already logged in", exception.getMessage());
+
+        verify(userRepository, times(1)).findByEmail(user.getEmail());
+        verify(jwtUtils, times(1)).parseJwtToken(mockRequest);
+        verify(jwtUtils, times(1)).validateJwtToken(jwtToken);
         verify(authenticationManager, never()).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtUtils, never()).generateJwtToken(any(Authentication.class));
     }

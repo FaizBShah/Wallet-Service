@@ -5,11 +5,13 @@ import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
 import com.example.wallet.repository.UserRepository;
 import com.example.wallet.security.jwt.JWTUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,9 +48,15 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public String loginUser(String email, String password) {
+    public String loginUser(String email, String password, HttpServletRequest request) {
         if (userRepository.findByEmail(email).isEmpty()) {
             throw new AppException(HttpStatus.BAD_REQUEST, "User does not have an account");
+        }
+
+        String jwtToken = jwtUtils.parseJwtToken(request);
+
+        if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken) != null) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "User already logged in");
         }
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
