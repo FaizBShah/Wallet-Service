@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +47,10 @@ public class AuthService {
     }
 
     public String loginUser(String email, String password) {
+        if (userRepository.findByEmail(email).isEmpty()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "User does not have an account");
+        }
+
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
         return jwtUtils.generateJwtToken(authentication);
     }
