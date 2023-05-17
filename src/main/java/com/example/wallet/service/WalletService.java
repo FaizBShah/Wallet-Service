@@ -38,6 +38,10 @@ public class WalletService {
     }
 
     public Wallet getUserWallet(User user) {
+        if (user == null) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Invalid User");
+        }
+
         return user.getWallet();
     }
 }
