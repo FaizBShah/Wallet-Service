@@ -48,7 +48,7 @@ class AuthServiceTest {
                 .id(1L)
                 .firstName("Faiz")
                 .lastName("Shah")
-                .email("faizbshah2001@gmail")
+                .email("faizbshah2001@gmail.com")
                 .password("hjhjkjjkh")
                 .enabled(true)
                 .locked(false)
@@ -116,7 +116,7 @@ class AuthServiceTest {
 
         AppException exception = assertThrows(AppException.class, () -> authService.loginUser(user.getEmail(), user.getPassword(), mockRequest));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("User does not have an account", exception.getMessage());
 
         verify(userRepository, times(1)).findByEmail(user.getEmail());

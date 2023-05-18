@@ -106,7 +106,7 @@ class WalletServiceTest {
                 .id(1L)
                 .firstName("Faiz")
                 .lastName("Shah")
-                .email("faizbshah2001@gmail")
+                .email("faizbshah2001@gmail.com")
                 .password("hjhjkjjkh")
                 .wallet(wallet)
                 .enabled(true)
