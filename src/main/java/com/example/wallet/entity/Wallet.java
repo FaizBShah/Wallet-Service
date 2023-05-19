@@ -1,12 +1,16 @@
 package com.example.wallet.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "wallet")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Wallet {
 
