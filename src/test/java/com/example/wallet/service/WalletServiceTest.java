@@ -1,5 +1,6 @@
 package com.example.wallet.service;
 
+import com.example.wallet.entity.Currency;
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
@@ -30,9 +31,11 @@ class WalletServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(5.0);
+        wallet = Wallet.builder()
+                .id(1L)
+                .amount(5.0)
+                .currency(Currency.RUPEE)
+                .build();
     }
 
     @Test

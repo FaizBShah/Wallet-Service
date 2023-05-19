@@ -1,5 +1,6 @@
 package com.example.wallet.repository;
 
+import com.example.wallet.entity.Currency;
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,11 @@ class UserRepositoryTest {
 
     @Test
     void shouldSaveWorkCorrectly() {
-        Wallet wallet = new Wallet();
+        Wallet wallet = Wallet.builder()
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
+
         User user = User.builder()
                 .firstName("Faiz")
                 .lastName("Shah")
@@ -38,7 +43,11 @@ class UserRepositoryTest {
 
     @Test
     void shouldFindByEmailWorkCorrectly() {
-        Wallet wallet = new Wallet();
+        Wallet wallet = Wallet.builder()
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
+
         User user = User.builder()
                 .firstName("Faiz")
                 .lastName("Shah")

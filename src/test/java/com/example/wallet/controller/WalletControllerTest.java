@@ -1,5 +1,6 @@
 package com.example.wallet.controller;
 
+import com.example.wallet.entity.Currency;
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
@@ -49,9 +50,11 @@ class WalletControllerTest {
     void shouldDepositAmountToWalletAPIWorkCorrectly() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(0.0);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -68,7 +71,10 @@ class WalletControllerTest {
         when(walletService.depositAmountToWallet(100.0, wallet.getId())).thenReturn(100.0);
 
         mockMvc.perform(put("/api/v1/wallet/deposit")
-                        .param("amount", "100.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": 100.0\n" +
+                                "}")
                         .principal(principal)
                 )
                 .andExpect(status().isOk())
@@ -88,9 +94,11 @@ class WalletControllerTest {
     void shouldDepositAmountToWalletAPIWorkThrowAnErrorIfTryingToDepositZeroOrLessAmount() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(0.0);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -110,7 +118,10 @@ class WalletControllerTest {
                 .depositAmountToWallet(-1, 1L);
 
         mockMvc.perform(put("/api/v1/wallet/deposit")
-                        .param("amount", "-1.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": -1.0\n" +
+                                "}")
                         .principal(principal)
                 )
                 .andExpect(status().isBadRequest())
@@ -126,9 +137,11 @@ class WalletControllerTest {
     void shouldDepositAmountToWalletAPIWorkThrowAnErrorIfWalletDoesNotExist() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(0.0);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -148,7 +161,10 @@ class WalletControllerTest {
                 .depositAmountToWallet(5, 1L);
 
         mockMvc.perform(put("/api/v1/wallet/deposit")
-                        .param("amount", "5.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": 5.0\n" +
+                                "}")
                         .principal(principal)
                 )
                 .andExpect(status().isNotFound())
@@ -164,9 +180,11 @@ class WalletControllerTest {
     void shouldWithdrawAmountFromAPIWorkCorrectly() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(10.0);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(10.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -183,7 +201,10 @@ class WalletControllerTest {
         when(walletService.withDrawAmountFromWallet(9.0, wallet.getId())).thenReturn(1.0);
 
         mockMvc.perform(put("/api/v1/wallet/withdraw")
-                        .param("amount", "9.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": 9.0\n" +
+                                "}")
                         .principal(principal)
                 )
                 .andExpect(status().isOk())
@@ -203,9 +224,11 @@ class WalletControllerTest {
     void shouldWithdrawAmountFromWalletAPIWorkThrowAnErrorIfTryingToWithdrawZeroOrLessAmount() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(0.0);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -225,7 +248,10 @@ class WalletControllerTest {
                 .withDrawAmountFromWallet(-1, 1L);
 
         mockMvc.perform(put("/api/v1/wallet/withdraw")
-                        .param("amount", "-1.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": -1.0\n" +
+                                "}")
                         .principal(principal)
                 )
                 .andExpect(status().isBadRequest())
@@ -241,9 +267,11 @@ class WalletControllerTest {
     void shouldWithdrawAmountFromWalletAPIWorkThrowAnErrorIfWalletDoesNotExist() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(0.0);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -263,7 +291,10 @@ class WalletControllerTest {
                 .withDrawAmountFromWallet(5, 1L);
 
         mockMvc.perform(put("/api/v1/wallet/withdraw")
-                        .param("amount", "5.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": 5.0\n" +
+                                "}")
                         .principal(principal)
                 )
                 .andExpect(status().isNotFound())
@@ -279,9 +310,11 @@ class WalletControllerTest {
     void shouldWithdrawAmountFromWalletAPIWorkThrowAnErrorIfTryingToWithdrawMoreThanTheExistingAmount() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setAmount(0.0);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -301,7 +334,10 @@ class WalletControllerTest {
                 .withDrawAmountFromWallet(5, 1L);
 
         mockMvc.perform(put("/api/v1/wallet/withdraw")
-                        .param("amount", "5.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": 5.0\n" +
+                                "}")
                         .principal(principal)
                 )
                 .andExpect(status().isBadRequest())
@@ -317,8 +353,11 @@ class WalletControllerTest {
     void shouldFetchCurrentAmountAPIWorkCorrectly() throws Exception {
         Principal principal = () -> "testUser";
 
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -334,7 +373,7 @@ class WalletControllerTest {
         when(userService.loadUserByUsername(principal.getName())).thenReturn(user);
         when(walletService.getUserWallet(user)).thenReturn(wallet);
 
-        mockMvc.perform(get("/api/v1/wallet/current")
+        mockMvc.perform(get("/api/v1/wallet")
                         .principal(principal)
                 )
                 .andExpect(status().isOk())

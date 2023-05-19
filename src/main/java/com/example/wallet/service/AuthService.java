@@ -39,7 +39,6 @@ public class AuthService {
                 .lastName(lastName)
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .wallet(new Wallet())
                 .locked(false)
                 .enabled(true)
                 .build();

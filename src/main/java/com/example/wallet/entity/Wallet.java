@@ -1,11 +1,13 @@
 package com.example.wallet.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 @Entity
 @Table(name = "wallet")
 @Data
+@Builder
 public class Wallet {
 
     @Id
@@ -23,7 +25,7 @@ public class Wallet {
     @Column(nullable = false)
     private Double amount;
 
-    public Wallet() {
-        this.amount = 0.0;
-    }
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
 }

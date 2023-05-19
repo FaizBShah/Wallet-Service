@@ -1,5 +1,6 @@
 package com.example.wallet.repository;
 
+import com.example.wallet.entity.Currency;
 import com.example.wallet.entity.Wallet;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,10 @@ class WalletRepositoryTest {
 
     @Test
     public void shouldSaveWorkCorrectly() {
-        Wallet wallet = new Wallet();
+        Wallet wallet = Wallet.builder()
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
 
         walletRepository.save(wallet);
 
