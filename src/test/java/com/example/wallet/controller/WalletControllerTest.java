@@ -350,7 +350,7 @@ class WalletControllerTest {
     }
 
     @Test
-    void shouldFetchCurrentAmountAPIWorkCorrectly() throws Exception {
+    void shouldFetchWalletAPIWorkCorrectly() throws Exception {
         Principal principal = () -> "testUser";
 
         Wallet wallet = Wallet.builder()
@@ -383,6 +383,94 @@ class WalletControllerTest {
 
         verify(userService, times(1)).loadUserByUsername(principal.getName());
         verify(walletService, times(1)).getUserWallet(user);
+    }
+
+    @Test
+    void shouldCreateWalletAPIWorkCorrectly() throws Exception {
+        Principal principal = () -> "testUser";
+
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(0.0)
+                .currency(Currency.RUPEE)
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .firstName("Faiz")
+                .lastName("Shah")
+                .email("faizbshah2001@gmail.com")
+                .password("helloworld")
+                .enabled(true)
+                .locked(false)
+                .build();
+
+        when(userService.loadUserByUsername(principal.getName())).thenReturn(user);
+        when(walletService.createWallet(user, Currency.RUPEE)).thenReturn(wallet);
+
+        mockMvc.perform(post("/api/v1/wallet")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"currency\": \"RUPEE\"\n" +
+                                "}")
+                        .principal(principal)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.amount").value(0.0))
+                .andExpect(jsonPath("$.currency").value("RUPEE"));
+
+        verify(userService, times(1)).loadUserByUsername(principal.getName());
+        verify(walletService, times(1)).createWallet(user, Currency.RUPEE);
+    }
+
+    @Test
+    void shouldTransferAmountToWalletAPIWorkCorrectly() throws Exception {
+        Principal principal = () -> "testUser";
+
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .amount(10.0)
+                .currency(Currency.RUPEE)
+                .build();
+
+        Wallet expectedWallet = Wallet.builder()
+                .id(1L)
+                .amount(5.0)
+                .currency(Currency.RUPEE)
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .firstName("Faiz")
+                .lastName("Shah")
+                .email("faizbshah2001@gmail.com")
+                .wallet(wallet)
+                .password("helloworld")
+                .enabled(true)
+                .locked(false)
+                .build();
+
+        when(userService.loadUserByUsername(principal.getName())).thenReturn(user);
+        when(walletService.transferAmountToWallet(5.0, user, 2L)).thenReturn(expectedWallet);
+
+        mockMvc.perform(put("/api/v1/wallet/transfer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"amount\": 5.0,\n" +
+                                "\t\"walletId\": 2\n" +
+                                "}")
+                        .principal(principal)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.amount").value(5.0))
+                .andExpect(jsonPath("$.currency").value("RUPEE"));
+
+        verify(userService, times(1)).loadUserByUsername(principal.getName());
+        verify(walletService, times(1)).transferAmountToWallet(5.0, user, 2L);
     }
 
 }
