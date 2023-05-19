@@ -1,5 +1,10 @@
 package com.example.wallet.dto.response;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class WalletUpdateResponseMessage extends ResponseMessage {
 
     private final Long walletId;

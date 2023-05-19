@@ -49,6 +49,17 @@ class WalletServiceTest {
     }
 
     @Test
+    void shouldDepositAmountToWalletThrowAnErrorIfAmountDepositedIsLessThanZero() {
+        AppException exception = assertThrows(AppException.class, () -> walletService.depositAmountToWallet(-1, 1L));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Cannot deposit 0 or less amount", exception.getMessage());
+
+        verify(walletRepository, never()).findById(wallet.getId());
+        verify(walletRepository, never()).save(any(Wallet.class));
+    }
+
+    @Test
     void shouldDepositAmountToWalletThrowAnErrorIfWalletDoesNotExist() {
         when(walletRepository.findById(wallet.getId())).thenReturn(Optional.empty());
 
@@ -72,6 +83,17 @@ class WalletServiceTest {
 
         verify(walletRepository, times(1)).findById(wallet.getId());
         verify(walletRepository, times(1)).save(any(Wallet.class));
+    }
+
+    @Test
+    void shouldWithdrawAmountFromWalletThrowAnErrorIfAmountWithdrawnIsLessThanZero() {
+        AppException exception = assertThrows(AppException.class, () -> walletService.withDrawAmountFromWallet(-1, 1L));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Cannot withdraw 0 or less amount", exception.getMessage());
+
+        verify(walletRepository, never()).findById(wallet.getId());
+        verify(walletRepository, never()).save(any(Wallet.class));
     }
 
     @Test

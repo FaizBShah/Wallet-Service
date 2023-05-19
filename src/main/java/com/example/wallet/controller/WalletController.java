@@ -28,7 +28,7 @@ public class WalletController {
         return ResponseEntity.ok(wallet);
     }
 
-    @PostMapping("/deposit")
+    @PutMapping("/deposit")
     public ResponseEntity<WalletUpdateResponseMessage> depositAmountToWallet(@RequestParam("amount") Double amount, Principal principal) {
         User user = (User) userService.loadUserByUsername(principal.getName());
         double updatedAmount = walletService.depositAmountToWallet(amount, user.getWallet().getId());
@@ -42,7 +42,7 @@ public class WalletController {
         ));
     }
 
-    @PostMapping("/withdraw")
+    @PutMapping("/withdraw")
     public ResponseEntity<WalletUpdateResponseMessage> withdrawAmountFromWallet(@RequestParam("amount") Double amount, Principal principal) {
         User user = (User) userService.loadUserByUsername(principal.getName());
         double updatedAmount = walletService.withDrawAmountFromWallet(amount, user.getWallet().getId());

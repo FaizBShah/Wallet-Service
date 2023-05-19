@@ -15,6 +15,10 @@ public class WalletService {
     private WalletRepository walletRepository;
 
     public Double depositAmountToWallet(double amount, Long walletId) {
+        if (amount <= 0) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot deposit 0 or less amount");
+        }
+
         Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Wallet Not found"));
 
         double newAmount = wallet.getAmount() + amount;
@@ -24,6 +28,10 @@ public class WalletService {
     }
 
     public Double withDrawAmountFromWallet(double amount, Long walletId) {
+        if (amount <= 0) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot withdraw 0 or less amount");
+        }
+
         Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Wallet Not found"));
 
         double newAmount = wallet.getAmount() - amount;
