@@ -90,7 +90,7 @@ public class Wallet {
             throw new AppException(HttpStatus.BAD_REQUEST, "The wallet you are trying to transfer is not activated yet");
         }
 
-        if (id == toWallet.id) {
+        if (id.equals(toWallet.id)) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Cannot transfer money to oneself.");
         }
 
