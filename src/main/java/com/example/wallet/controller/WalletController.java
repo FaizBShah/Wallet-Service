@@ -31,10 +31,10 @@ public class WalletController {
         return ResponseEntity.ok(wallet);
     }
 
-    @PostMapping
-    public ResponseEntity<Wallet> createWallet(@RequestBody CreateWalletRequestBody requestBody, Principal principal) {
+    @PutMapping("/activate")
+    public ResponseEntity<Wallet> activateWallet(@RequestBody CreateWalletRequestBody requestBody, Principal principal) {
         User user = (User) userService.loadUserByUsername(principal.getName());
-        Wallet wallet = walletService.createWallet(user, requestBody.currency());
+        Wallet wallet = walletService.activateWallet(user, requestBody.currency());
         return ResponseEntity.ok(wallet);
     }
 

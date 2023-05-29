@@ -50,27 +50,29 @@ class WalletServiceTest {
                 .lastName("Shah")
                 .email("faizbshah2001@gmail.com")
                 .password("hjhjkjjkh")
+                .wallet(new Wallet())
                 .enabled(true)
                 .locked(false)
                 .build();
 
-        Wallet expectedWallet = Wallet.builder()
-                .amount(0.0)
-                .currency(Currency.RUPEE)
-                .build();
+        Wallet expectedWallet = new Wallet();
+        expectedWallet.activate(Currency.RUPEE);
 
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(walletRepository.save(any(Wallet.class))).thenReturn(expectedWallet);
 
-        Wallet savedWallet = walletService.createWallet(user, Currency.RUPEE);
+        Wallet savedWallet = walletService.activateWallet(user, Currency.RUPEE);
 
         assertEquals(expectedWallet, savedWallet);
         assertEquals(expectedWallet, user.getWallet());
 
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(walletRepository, times(1)).save(any(Wallet.class));
     }
 
     @Test
     void shouldCreateWalletThrowErrorIfUserAlreadyHasAWallet() {
+        Wallet wallet = new Wallet();
+        wallet.activate(Currency.RUPEE);
+
         User user = User.builder()
                 .id(1L)
                 .firstName("Faiz")
@@ -82,7 +84,7 @@ class WalletServiceTest {
                 .locked(false)
                 .build();
 
-        AppException exception = assertThrows(AppException.class, () -> walletService.createWallet(user, Currency.RUPEE));
+        AppException exception = assertThrows(AppException.class, () -> walletService.activateWallet(user, Currency.RUPEE));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("User already has a wallet", exception.getMessage());
@@ -98,11 +100,12 @@ class WalletServiceTest {
                 .lastName("Shah")
                 .email("faizbshah2001@gmail.com")
                 .password("hjhjkjjkh")
+                .wallet(new Wallet())
                 .enabled(true)
                 .locked(false)
                 .build();
 
-        AppException exception = assertThrows(AppException.class, () -> walletService.createWallet(user, null));
+        AppException exception = assertThrows(AppException.class, () -> walletService.activateWallet(user, null));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("Invalid Currency", exception.getMessage());

@@ -386,7 +386,7 @@ class WalletControllerTest {
     }
 
     @Test
-    void shouldCreateWalletAPIWorkCorrectly() throws Exception {
+    void shouldActivateWalletAPIWorkCorrectly() throws Exception {
         Principal principal = () -> "testUser";
 
         Wallet wallet = Wallet.builder()
@@ -406,9 +406,9 @@ class WalletControllerTest {
                 .build();
 
         when(userService.loadUserByUsername(principal.getName())).thenReturn(user);
-        when(walletService.createWallet(user, Currency.RUPEE)).thenReturn(wallet);
+        when(walletService.activateWallet(user, Currency.RUPEE)).thenReturn(wallet);
 
-        mockMvc.perform(post("/api/v1/wallet")
+        mockMvc.perform(put("/api/v1/wallet/activate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "\t\"currency\": \"RUPEE\"\n" +
@@ -422,7 +422,7 @@ class WalletControllerTest {
                 .andExpect(jsonPath("$.currency").value("RUPEE"));
 
         verify(userService, times(1)).loadUserByUsername(principal.getName());
-        verify(walletService, times(1)).createWallet(user, Currency.RUPEE);
+        verify(walletService, times(1)).activateWallet(user, Currency.RUPEE);
     }
 
     @Test

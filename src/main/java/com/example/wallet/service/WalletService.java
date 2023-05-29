@@ -20,8 +20,8 @@ public class WalletService {
     @Autowired
     private UserRepository userRepository;
 
-    public Wallet createWallet(User user, Currency currency) {
-        if (user.getWallet() != null) {
+    public Wallet activateWallet(User user, Currency currency) {
+        if (user.getWallet().isActivated()) {
             throw new AppException(HttpStatus.BAD_REQUEST, "User already has a wallet");
         }
 
@@ -29,14 +29,9 @@ public class WalletService {
             throw new AppException(HttpStatus.BAD_REQUEST, "Invalid Currency");
         }
 
-        Wallet wallet = Wallet.builder()
-                .amount(0.0)
-                .currency(currency)
-                .build();
+        user.getWallet().activate(currency);
 
-        user.setWallet(wallet);
-
-        return userRepository.save(user).getWallet();
+        return walletRepository.save(user.getWallet());
     }
 
     public Double depositAmountToWallet(double amount, Long walletId) {
