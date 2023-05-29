@@ -21,7 +21,9 @@ public class WalletService {
     private UserRepository userRepository;
 
     public Wallet activateWallet(User user, Currency currency) {
-        if (user.getWallet().isActivated()) {
+        Wallet wallet = user.getWallet();
+
+        if (wallet.isActivated()) {
             throw new AppException(HttpStatus.BAD_REQUEST, "User already has a wallet");
         }
 
@@ -29,9 +31,9 @@ public class WalletService {
             throw new AppException(HttpStatus.BAD_REQUEST, "Invalid Currency");
         }
 
-        user.getWallet().activate(currency);
+        wallet.activate(currency);
 
-        return walletRepository.save(user.getWallet());
+        return walletRepository.save(wallet);
     }
 
     public Double depositAmountToWallet(double amount, Long walletId) {
@@ -40,11 +42,11 @@ public class WalletService {
         }
 
         Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Wallet Not found"));
+        Double newAmount = wallet.depositMoney(amount);
 
-        double newAmount = wallet.getAmount() + amount;
-        wallet.setAmount(newAmount);
+        walletRepository.save(wallet);
 
-        return walletRepository.save(wallet).getAmount();
+        return newAmount;
     }
 
     public Double withDrawAmountFromWallet(double amount, Long walletId) {
@@ -53,16 +55,11 @@ public class WalletService {
         }
 
         Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Wallet Not found"));
+        Double newAmount = wallet.withdrawMoney(amount);
 
-        double newAmount = wallet.getAmount() - amount;
+        walletRepository.save(wallet);
 
-        if (newAmount < 0) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Amount exceeded current balance in wallet");
-        }
-
-        wallet.setAmount(newAmount);
-
-        return walletRepository.save(wallet).getAmount();
+        return newAmount;
     }
 
     public Wallet getUserWallet(User user) {
@@ -75,29 +72,11 @@ public class WalletService {
 
     @Transactional
     public Wallet transferAmountToWallet(Double amount, User user, Long toWalletId) {
-        if (user.getWallet() == null) {
-            throw new AppException(HttpStatus.NOT_FOUND, "User does not have a wallet yet");
-        }
-
-        if (amount <= 0) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot transfer zero or less money");
-        }
-
         Wallet fromWallet = user.getWallet();
-
-        if (fromWallet.getId().equals(toWalletId)) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot transfer money to oneself.");
-        }
-
-        if (amount > fromWallet.getAmount()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Trying to transfer more amount than what the wallet holds");
-        }
-
         Wallet toWallet = walletRepository.findById(toWalletId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "The wallet you are trying to transfer does not exist"));
 
-        fromWallet.setAmount(fromWallet.getAmount() - amount);
-        toWallet.setAmount(toWallet.getAmount() + fromWallet.getCurrency().convertTo(toWallet.getCurrency(), amount));
+        fromWallet.transferAmountTo(amount, toWallet);
 
         walletRepository.save(toWallet);
 
