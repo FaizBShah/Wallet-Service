@@ -3,7 +3,6 @@ package com.example.wallet.controller;
 import com.example.wallet.dto.request.CreateWalletRequestBody;
 import com.example.wallet.dto.request.TransferAmountRequestBody;
 import com.example.wallet.dto.request.WalletUpdateRequestBody;
-import com.example.wallet.dto.response.WalletUpdateResponseMessage;
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.service.UserService;
@@ -39,31 +38,17 @@ public class WalletController {
     }
 
     @PutMapping("/deposit")
-    public ResponseEntity<WalletUpdateResponseMessage> depositAmountToWallet(@RequestBody WalletUpdateRequestBody requestBody, Principal principal) {
+    public ResponseEntity<Wallet> depositAmountToWallet(@RequestBody WalletUpdateRequestBody requestBody, Principal principal) {
         User user = (User) userService.loadUserByUsername(principal.getName());
-        double updatedAmount = walletService.depositAmountToWallet(requestBody.amount(), user.getWallet().getId());
-        return ResponseEntity.ok(new WalletUpdateResponseMessage(
-                true,
-                user.getWallet().getId(),
-                updatedAmount,
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail()
-        ));
+        Wallet wallet = walletService.depositAmountToWallet(requestBody.amount(), user.getWallet().getId());
+        return ResponseEntity.ok(wallet);
     }
 
     @PutMapping("/withdraw")
-    public ResponseEntity<WalletUpdateResponseMessage> withdrawAmountFromWallet(@RequestBody WalletUpdateRequestBody requestBody, Principal principal) {
+    public ResponseEntity<Wallet> withdrawAmountFromWallet(@RequestBody WalletUpdateRequestBody requestBody, Principal principal) {
         User user = (User) userService.loadUserByUsername(principal.getName());
-        double updatedAmount = walletService.withDrawAmountFromWallet(requestBody.amount(), user.getWallet().getId());
-        return ResponseEntity.ok(new WalletUpdateResponseMessage(
-                true,
-                user.getWallet().getId(),
-                updatedAmount,
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail()
-        ));
+        Wallet wallet = walletService.withDrawAmountFromWallet(requestBody.amount(), user.getWallet().getId());
+        return ResponseEntity.ok(wallet);
     }
 
     @PutMapping("/transfer")

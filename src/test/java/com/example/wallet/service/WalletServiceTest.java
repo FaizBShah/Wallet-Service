@@ -1,6 +1,7 @@
 package com.example.wallet.service;
 
 import com.example.wallet.entity.Currency;
+import com.example.wallet.entity.Transaction;
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
@@ -29,6 +30,9 @@ class WalletServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private TransactionService transactionService;
+
     private Wallet wallet;
 
     @BeforeEach
@@ -39,24 +43,29 @@ class WalletServiceTest {
                 .id(1L)
                 .amount(5.0)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
                 .build();
     }
 
     @Test
-    void shouldCreateWalletWorkCorrectly() {
+    void shouldActivateWalletWorkCorrectly() {
         User user = User.builder()
                 .id(1L)
                 .firstName("Faiz")
                 .lastName("Shah")
                 .email("faizbshah2001@gmail.com")
                 .password("hjhjkjjkh")
-                .wallet(new Wallet())
+                .wallet(Wallet.builder().id(1L).build())
                 .enabled(true)
                 .locked(false)
                 .build();
 
-        Wallet expectedWallet = new Wallet();
-        expectedWallet.activate(Currency.RUPEE);
+        Wallet expectedWallet = Wallet.builder()
+                        .id(1L)
+                        .amount(0.0)
+                        .currency(Currency.RUPEE)
+                        .isActivated(true)
+                        .build();
 
         when(walletRepository.save(any(Wallet.class))).thenReturn(expectedWallet);
 
@@ -69,10 +78,10 @@ class WalletServiceTest {
     }
 
     @Test
-    void shouldCreateWalletThrowErrorIfUserAlreadyHasAWallet() {
-        Wallet wallet = new Wallet();
-        wallet.activate(Currency.RUPEE);
-
+    void shouldActivateWalletThrowAnErrorIfWalletIsAlreadyActivated() {
+        Wallet wallet = Wallet.builder()
+                        .id(1L)
+                        .build();
         User user = User.builder()
                 .id(1L)
                 .firstName("Faiz")
@@ -84,6 +93,8 @@ class WalletServiceTest {
                 .locked(false)
                 .build();
 
+        wallet.activate(Currency.RUPEE);
+
         AppException exception = assertThrows(AppException.class, () -> walletService.activateWallet(user, Currency.RUPEE));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
@@ -93,7 +104,7 @@ class WalletServiceTest {
     }
 
     @Test
-    void shouldCreateWalletThrowErrorIfUserSendsANullCurrency() {
+    void shouldActivateWalletThrowErrorIfUserSendsANullCurrency() {
         User user = User.builder()
                 .id(1L)
                 .firstName("Faiz")
@@ -115,14 +126,23 @@ class WalletServiceTest {
 
     @Test
     void shouldDepositAmountToWalletWorkCorrectly() {
+        Wallet expectedWallet = Wallet.builder()
+                .id(1L)
+                .amount(11.5)
+                .currency(Currency.RUPEE)
+                .isActivated(true)
+                .build();
+
         when(walletRepository.findById(wallet.getId())).thenReturn(Optional.of(wallet));
+        doAnswer((t) -> { return null; }).when(transactionService).createDepositTransaction(any(Transaction.class));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
 
-        Double updatedAmount = walletService.depositAmountToWallet(6.5, 1L);
+        Wallet resultWallet = walletService.depositAmountToWallet(6.5, 1L);
 
-        assertEquals(11.5, updatedAmount);
+        assertEquals(expectedWallet, resultWallet);
 
         verify(walletRepository, times(1)).findById(wallet.getId());
+        verify(transactionService, times(1)).createDepositTransaction(any(Transaction.class));
         verify(walletRepository, times(1)).save(any(Wallet.class));
     }
 
@@ -152,12 +172,20 @@ class WalletServiceTest {
 
     @Test
     void shouldWithdrawAmountFromWalletWorkCorrectly() {
+        Wallet expectedWallet = Wallet.builder()
+                .id(1L)
+                .amount(2.0)
+                .currency(Currency.RUPEE)
+                .isActivated(true)
+                .build();
+
         when(walletRepository.findById(wallet.getId())).thenReturn(Optional.of(wallet));
+        doAnswer((t) -> { return null; }).when(transactionService).createWithdrawTransaction(any(Transaction.class));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
 
-        Double updatedAmount = walletService.withDrawAmountFromWallet(3.0, 1L);
+        Wallet resultWallet = walletService.withDrawAmountFromWallet(3.0, 1L);
 
-        assertEquals(2.0, updatedAmount);
+        assertEquals(expectedWallet, resultWallet);
 
         verify(walletRepository, times(1)).findById(wallet.getId());
         verify(walletRepository, times(1)).save(any(Wallet.class));
@@ -233,12 +261,14 @@ class WalletServiceTest {
                 .id(1L)
                 .amount(10.00)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
                 .build();
 
         Wallet toWallet = Wallet.builder()
                 .id(2L)
                 .amount(10.00)
                 .currency(Currency.YEN)
+                .isActivated(true)
                 .build();
 
         User user = User.builder()
@@ -253,6 +283,7 @@ class WalletServiceTest {
                 .build();
 
         when(walletRepository.findById(2L)).thenReturn(Optional.of(toWallet));
+        doAnswer((t) -> { return null; }).when(transactionService).createTransferTransaction(any(Transaction.class));
         when(walletRepository.save(fromWallet)).thenReturn(fromWallet);
         when(walletRepository.save(toWallet)).thenReturn(toWallet);
 
@@ -264,18 +295,20 @@ class WalletServiceTest {
         assertEquals(20.0, toWallet.getAmount());
 
         verify(walletRepository, times(1)).findById(2L);
+        verify(transactionService, times(1)).createTransferTransaction(any(Transaction.class));
         verify(walletRepository, times(1)).save(fromWallet);
         verify(walletRepository, times(1)).save(toWallet);
     }
 
     @Test
-    void shouldTransferAmountToWalletThrowErrorIfUserDoesNotHaveWallet() {
+    void shouldTransferAmountToWalletThrowErrorIfUserWalletIsNotActiveYet() {
         User user = User.builder()
                 .id(1L)
                 .firstName("Faiz")
                 .lastName("Shah")
                 .email("faizbshah2001@gmail.com")
                 .password("hjhjkjjkh")
+                .wallet(new Wallet())
                 .enabled(true)
                 .locked(false)
                 .build();
@@ -283,7 +316,7 @@ class WalletServiceTest {
         AppException exception = assertThrows(AppException.class, () -> walletService.transferAmountToWallet(5.0, user, 2L));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-        assertEquals("User does not have a wallet yet", exception.getMessage());
+        assertEquals("User's wallet is not activated yet", exception.getMessage());
 
         verify(walletRepository, never()).findById(2L);
         verify(walletRepository, never()).save(any(Wallet.class));
@@ -296,6 +329,7 @@ class WalletServiceTest {
                 .id(1L)
                 .amount(10.00)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
                 .build();
 
         User user = User.builder()
@@ -325,6 +359,7 @@ class WalletServiceTest {
                 .id(1L)
                 .amount(10.00)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
                 .build();
 
         User user = User.builder()
@@ -338,22 +373,25 @@ class WalletServiceTest {
                 .locked(false)
                 .build();
 
+        when(walletRepository.findById(1L)).thenReturn(Optional.of(fromWallet));
+
         AppException exception = assertThrows(AppException.class, () -> walletService.transferAmountToWallet(5.0, user, 1L));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-        assertEquals("Cannot transfer money to oneself.", exception.getMessage());
+        assertEquals("Cannot transfer money to oneself", exception.getMessage());
 
-        verify(walletRepository, never()).findById(2L);
+        verify(walletRepository, times(1)).findById(1L);
         verify(walletRepository, never()).save(any(Wallet.class));
         verify(walletRepository, never()).save(any(Wallet.class));
     }
 
     @Test
-    void shouldTransferAmountToWalletThrowErrorIfUserTriesToTransferMoneyToANonExistingWallet() {
+    void shouldTransferAmountToWalletThrowErrorIfUserTriesToTransferMoneyToANonActivatedWallet() {
         Wallet fromWallet = Wallet.builder()
                 .id(1L)
                 .amount(10.00)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
                 .build();
 
         User user = User.builder()
@@ -385,6 +423,14 @@ class WalletServiceTest {
                 .id(1L)
                 .amount(10.00)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
+                .build();
+
+        Wallet toWallet = Wallet.builder()
+                .id(2L)
+                .amount(10.00)
+                .currency(Currency.YEN)
+                .isActivated(true)
                 .build();
 
         User user = User.builder()
@@ -398,12 +444,14 @@ class WalletServiceTest {
                 .locked(false)
                 .build();
 
+        when(walletRepository.findById(2L)).thenReturn(Optional.of(toWallet));
+
         AppException exception = assertThrows(AppException.class, () -> walletService.transferAmountToWallet(12.0, user, 2L));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-        assertEquals("Trying to transfer more amount than what the wallet holds", exception.getMessage());
+        assertEquals("Cannot transfer more than your current balance", exception.getMessage());
 
-        verify(walletRepository, never()).findById(2L);
+        verify(walletRepository, times(1)).findById(2L);
         verify(walletRepository, never()).save(any(Wallet.class));
         verify(walletRepository, never()).save(any(Wallet.class));
     }

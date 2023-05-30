@@ -52,8 +52,9 @@ class WalletControllerTest {
 
         Wallet wallet = Wallet.builder()
                 .id(1L)
-                .amount(0.0)
+                .amount(100.0)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
                 .build();
 
         User user = User.builder()
@@ -68,7 +69,7 @@ class WalletControllerTest {
                 .build();
 
         when(userService.loadUserByUsername(principal.getName())).thenReturn(user);
-        when(walletService.depositAmountToWallet(100.0, wallet.getId())).thenReturn(100.0);
+        when(walletService.depositAmountToWallet(100.0, wallet.getId())).thenReturn(wallet);
 
         mockMvc.perform(put("/api/v1/wallet/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -79,12 +80,9 @@ class WalletControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.walletId").value(1))
-                .andExpect(jsonPath("$.updatedAmount").value(100))
-                .andExpect(jsonPath("$.firstName").value(user.getFirstName()))
-                .andExpect(jsonPath("$.lastName").value(user.getLastName()))
-                .andExpect(jsonPath("$.email").value(user.getEmail()));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.amount").value(100))
+                .andExpect(jsonPath("$.currency").value(Currency.RUPEE.toString()));
 
         verify(userService, times(1)).loadUserByUsername(principal.getName());
         verify(walletService, times(1)).depositAmountToWallet(100.0, wallet.getId());
@@ -182,8 +180,9 @@ class WalletControllerTest {
 
         Wallet wallet = Wallet.builder()
                 .id(1L)
-                .amount(10.0)
+                .amount(9.0)
                 .currency(Currency.RUPEE)
+                .isActivated(true)
                 .build();
 
         User user = User.builder()
@@ -198,7 +197,7 @@ class WalletControllerTest {
                 .build();
 
         when(userService.loadUserByUsername(principal.getName())).thenReturn(user);
-        when(walletService.withDrawAmountFromWallet(9.0, wallet.getId())).thenReturn(1.0);
+        when(walletService.withDrawAmountFromWallet(9.0, wallet.getId())).thenReturn(wallet);
 
         mockMvc.perform(put("/api/v1/wallet/withdraw")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -209,12 +208,9 @@ class WalletControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.walletId").value(1))
-                .andExpect(jsonPath("$.updatedAmount").value(1.0))
-                .andExpect(jsonPath("$.firstName").value(user.getFirstName()))
-                .andExpect(jsonPath("$.lastName").value(user.getLastName()))
-                .andExpect(jsonPath("$.email").value(user.getEmail()));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.amount").value(9.0))
+                .andExpect(jsonPath("$.currency").value(Currency.RUPEE.toString()));
 
         verify(userService, times(1)).loadUserByUsername(principal.getName());
         verify(walletService, times(1)).withDrawAmountFromWallet(9.0, wallet.getId());
