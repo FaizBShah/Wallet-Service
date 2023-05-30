@@ -59,8 +59,10 @@ public class Transaction {
                 toWalletId != null &&
                 toWalletAmount > 0 &&
                 toWalletCurrency != null &&
+                fromWalletCurrency.convertTo(toWalletCurrency, fromWalletAmount) == toWalletAmount &&
                 !fromWalletId.equals(toWalletId) &&
-                transactionType == TransactionType.TRANSFER;
+                transactionType == TransactionType.TRANSFER &&
+                createdAt != null;
     }
 
     public boolean isValidDepositTransaction() {
@@ -70,7 +72,8 @@ public class Transaction {
                 fromWalletId.equals(toWalletId) &&
                 fromWalletAmount.equals(toWalletAmount) &&
                 toWalletCurrency == fromWalletCurrency &&
-                transactionType == TransactionType.DEPOSIT;
+                transactionType == TransactionType.DEPOSIT &&
+                createdAt != null;
     }
 
     public boolean isValidWithdrawTransaction() {
@@ -80,6 +83,7 @@ public class Transaction {
                 fromWalletId.equals(toWalletId) &&
                 fromWalletAmount.equals(toWalletAmount) &&
                 toWalletCurrency == fromWalletCurrency &&
-                transactionType == TransactionType.WITHDRAW;
+                transactionType == TransactionType.WITHDRAW &&
+                createdAt != null;
     }
 }

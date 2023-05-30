@@ -50,6 +50,10 @@ public class Wallet {
             throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is already activated");
         }
 
+        if (currency == null) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot activate wallet with a null currency");
+        }
+
         this.isActivated = true;
         this.amount = 0.0;
         this.currency = currency;
@@ -115,7 +119,7 @@ public class Wallet {
         }
 
         if (id.equals(toWallet.id)) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot transfer money to oneself.");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot transfer money to oneself");
         }
 
         if (amount > this.amount) {
