@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "wallet_transactions")
 @Data
@@ -46,6 +48,9 @@ public class Transaction {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     public boolean isValidTransferTransaction() {
         return fromWalletId != null &&

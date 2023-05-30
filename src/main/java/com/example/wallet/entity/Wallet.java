@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "wallet")
 @Data
@@ -72,6 +74,7 @@ public class Wallet {
                 .toWalletAmount(amount)
                 .toWalletCurrency(currency)
                 .transactionType(TransactionType.DEPOSIT)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
@@ -98,6 +101,7 @@ public class Wallet {
                 .toWalletAmount(amount)
                 .toWalletCurrency(currency)
                 .transactionType(TransactionType.WITHDRAW)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
@@ -129,6 +133,7 @@ public class Wallet {
                 .toWalletAmount(currency.convertTo(toWallet.currency, amount))
                 .toWalletCurrency(toWallet.currency)
                 .transactionType(TransactionType.TRANSFER)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }
