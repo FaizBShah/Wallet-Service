@@ -53,7 +53,7 @@ public class Wallet {
         this.currency = currency;
     }
 
-    public Double depositMoney(Double amount) {
+    public Transaction depositMoney(Double amount) {
         if (!isActivated()) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is not activated yet");
         }
@@ -62,10 +62,20 @@ public class Wallet {
             throw new AppException(HttpStatus.BAD_REQUEST, "Cannot deposit 0 or less amount");
         }
 
-        return this.amount += amount;
+        this.amount += amount;
+
+        return Transaction.builder()
+                .fromWalletId(id)
+                .fromWalletAmount(amount)
+                .fromWalletCurrency(currency)
+                .toWalletId(id)
+                .toWalletAmount(amount)
+                .toWalletCurrency(currency)
+                .transactionType(TransactionType.DEPOSIT)
+                .build();
     }
 
-    public Double withdrawMoney(Double amount) {
+    public Transaction withdrawMoney(Double amount) {
         if (!isActivated()) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is not activated yet");
         }
@@ -78,10 +88,20 @@ public class Wallet {
             throw new AppException(HttpStatus.BAD_REQUEST, "Amount exceeded current balance in wallet");
         }
 
-        return this.amount -= amount;
+        this.amount -= amount;
+
+        return Transaction.builder()
+                .fromWalletId(id)
+                .fromWalletAmount(amount)
+                .fromWalletCurrency(currency)
+                .toWalletId(id)
+                .toWalletAmount(amount)
+                .toWalletCurrency(currency)
+                .transactionType(TransactionType.WITHDRAW)
+                .build();
     }
 
-    public Double[] transferAmountTo(Double amount, Wallet toWallet) {
+    public Transaction transferAmountTo(Double amount, Wallet toWallet) {
         if (!isActivated()) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is not activated yet");
         }
@@ -98,9 +118,17 @@ public class Wallet {
             throw new AppException(HttpStatus.BAD_REQUEST, "Cannot transfer more than your current balance");
         }
 
-        Double currFromAmount = this.withdrawMoney(amount);
-        Double currToAmount = this.depositMoney(this.currency.convertTo(toWallet.getCurrency(), amount));
+        this.withdrawMoney(amount);
+        this.depositMoney(this.currency.convertTo(toWallet.getCurrency(), amount));
 
-        return new Double[] { currFromAmount, currToAmount };
+        return Transaction.builder()
+                .fromWalletId(id)
+                .fromWalletAmount(amount)
+                .fromWalletCurrency(currency)
+                .toWalletId(toWallet.id)
+                .toWalletAmount(currency.convertTo(toWallet.currency, amount))
+                .toWalletCurrency(toWallet.currency)
+                .transactionType(TransactionType.TRANSFER)
+                .build();
     }
 }

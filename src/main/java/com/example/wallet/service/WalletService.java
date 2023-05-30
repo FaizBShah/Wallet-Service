@@ -1,9 +1,11 @@
 package com.example.wallet.service;
 
 import com.example.wallet.entity.Currency;
+import com.example.wallet.entity.Transaction;
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
+import com.example.wallet.repository.TransactionRepository;
 import com.example.wallet.repository.UserRepository;
 import com.example.wallet.repository.WalletRepository;
 import jakarta.transaction.Transactional;
@@ -19,6 +21,9 @@ public class WalletService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TransactionService transactionService;
 
     public Wallet activateWallet(User user, Currency currency) {
         Wallet wallet = user.getWallet();
@@ -36,30 +41,32 @@ public class WalletService {
         return walletRepository.save(wallet);
     }
 
+    @Transactional
     public Double depositAmountToWallet(double amount, Long walletId) {
         if (amount <= 0) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Cannot deposit 0 or less amount");
         }
 
         Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Wallet Not found"));
-        Double newAmount = wallet.depositMoney(amount);
+        Transaction depositTransaction = wallet.depositMoney(amount);
 
-        walletRepository.save(wallet);
+        transactionService.createDepositTransaction(depositTransaction);
 
-        return newAmount;
+        return walletRepository.save(wallet).getAmount();
     }
 
+    @Transactional
     public Double withDrawAmountFromWallet(double amount, Long walletId) {
         if (amount <= 0) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Cannot withdraw 0 or less amount");
         }
 
         Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Wallet Not found"));
-        Double newAmount = wallet.withdrawMoney(amount);
+        Transaction withdrawTransaction = wallet.withdrawMoney(amount);
 
-        walletRepository.save(wallet);
+        transactionService.createWithdrawTransaction(withdrawTransaction);
 
-        return newAmount;
+        return walletRepository.save(wallet).getAmount();
     }
 
     public Wallet getUserWallet(User user) {
@@ -76,7 +83,8 @@ public class WalletService {
         Wallet toWallet = walletRepository.findById(toWalletId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "The wallet you are trying to transfer does not exist"));
 
-        fromWallet.transferAmountTo(amount, toWallet);
+        Transaction transaction = fromWallet.transferAmountTo(amount, toWallet);
+        transactionService.createTransferTransaction(transaction);
 
         walletRepository.save(toWallet);
 
