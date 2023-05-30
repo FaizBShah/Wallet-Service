@@ -123,7 +123,7 @@ public class Wallet {
         }
 
         this.withdrawMoney(amount);
-        this.depositMoney(this.currency.convertTo(toWallet.getCurrency(), amount));
+        toWallet.depositMoney(this.currency.convertTo(toWallet.getCurrency(), amount));
 
         return Transaction.builder()
                 .fromWalletId(id)
