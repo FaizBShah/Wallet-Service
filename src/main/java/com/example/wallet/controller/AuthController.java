@@ -7,6 +7,7 @@ import com.example.wallet.dto.response.ResponseMessage;
 import com.example.wallet.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +30,7 @@ public class AuthController {
                 requestBody.password()
         );
 
-        return ResponseEntity.ok(new ResponseMessage(true));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(true));
     }
 
     @PostMapping("/login")

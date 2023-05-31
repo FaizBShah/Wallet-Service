@@ -61,7 +61,7 @@ class AuthControllerTest {
                                 "\t\"password\": \"helloworld\"\n" +
                                 "}")
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true));
 
