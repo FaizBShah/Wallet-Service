@@ -1,8 +1,6 @@
 package com.example.wallet.service;
 
-import com.example.wallet.entity.Currency;
-import com.example.wallet.entity.Transaction;
-import com.example.wallet.entity.TransactionType;
+import com.example.wallet.entity.*;
 import com.example.wallet.exception.AppException;
 import com.example.wallet.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -27,7 +26,7 @@ class TransactionServiceTest {
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -157,6 +156,65 @@ class TransactionServiceTest {
         assertEquals("Transaction is not valid withdraw transaction", exception.getMessage());
 
         verify(transactionRepository, never()).save(any(Transaction.class));
+    }
+
+    @Test
+    void shouldGetAllTransactionsWorkCorrectly() {
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .firstName("Faiz")
+                .lastName("Shah")
+                .email("faizbshah2001@gmail.com")
+                .password("hjhjkjjkh")
+                .wallet(wallet)
+                .enabled(true)
+                .locked(false)
+                .build();
+
+        user.getWallet().activate(Currency.RUPEE);
+
+        Transaction transaction1 = user.getWallet().depositMoney(5.0);
+        Transaction transaction2 = user.getWallet().depositMoney(6.0);
+
+        when(transactionRepository.getTransactionsByWalletId(1L)).thenReturn(List.of(transaction1, transaction2));
+
+        List<Transaction> transactions = transactionService.getAllTransactions(user);
+
+        assertNotNull(transactions);
+        assertEquals(2, transactions.size());
+        assertEquals(transaction1, transactions.get(0));
+        assertEquals(transaction2, transactions.get(1));
+
+        verify(transactionRepository, times(1)).getTransactionsByWalletId(1L);
+    }
+
+    @Test
+    void shouldGetAllTransactionsThrowErrorIfWalletIsNotActivated() {
+        Wallet wallet = Wallet.builder()
+                .id(1L)
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .firstName("Faiz")
+                .lastName("Shah")
+                .email("faizbshah2001@gmail.com")
+                .password("hjhjkjjkh")
+                .wallet(wallet)
+                .enabled(true)
+                .locked(false)
+                .build();
+
+        AppException exception = assertThrows(AppException.class, () -> transactionService.getAllTransactions(user));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("User's wallet is not activated yet", exception.getMessage());
+
+        verify(transactionRepository, never()).getTransactionsByWalletId(any());
     }
 
 }

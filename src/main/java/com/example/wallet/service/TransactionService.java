@@ -1,11 +1,15 @@
 package com.example.wallet.service;
 
 import com.example.wallet.entity.Transaction;
+import com.example.wallet.entity.User;
+import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
 import com.example.wallet.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TransactionService {
@@ -35,6 +39,16 @@ public class TransactionService {
         }
 
         transactionRepository.save(transaction);
+    }
+
+    public List<Transaction> getAllTransactions(User user) {
+        Wallet wallet = user.getWallet();
+
+        if (!wallet.isActivated()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "User's wallet is not activated yet");
+        }
+
+        return transactionRepository.getTransactionsByWalletId(wallet.getId());
     }
 
 }
