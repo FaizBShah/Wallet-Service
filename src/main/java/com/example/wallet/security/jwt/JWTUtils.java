@@ -40,7 +40,7 @@ public class JWTUtils {
                 .sign(Algorithm.HMAC512(jwtSecret));
     }
 
-    private Map<String,String> generatePayload(User user) {
+    public Map<String,String> generatePayload(User user) {
         HashMap<String, String> payload = new HashMap<>();
 
         payload.put("firstName", user.getFirstName());
