@@ -4,6 +4,8 @@ import com.example.wallet.exception.AppException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class WalletTest {
@@ -106,10 +108,10 @@ class WalletTest {
 
         wallet.activate(Currency.RUPEE);
 
-        AppException exception = assertThrows(AppException.class, () -> wallet.depositMoney(-1.0));
+        AppException exception = assertThrows(AppException.class, () -> wallet.withdrawMoney(-1.0));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-        assertEquals("Cannot deposit 0 or less amount", exception.getMessage());
+        assertEquals("Cannot withdraw 0 or less amount", exception.getMessage());
     }
 
     @Test
@@ -140,6 +142,7 @@ class WalletTest {
 
         Transaction transaction = fromWallet.transferAmountTo(2.0, toWallet);
 
+        assertNull(transaction.getId());
         assertEquals(1L, transaction.getFromWalletId());
         assertEquals(2.0, transaction.getFromWalletAmount());
         assertEquals(Currency.RUPEE, transaction.getFromWalletCurrency());
@@ -147,6 +150,8 @@ class WalletTest {
         assertEquals(4.0, transaction.getToWalletAmount());
         assertEquals(Currency.YEN, transaction.getToWalletCurrency());
         assertEquals(TransactionType.TRANSFER, transaction.getTransactionType());
+        assertNotNull(transaction.getCreatedAt());
+        assertTrue(transaction.getCreatedAt() instanceof LocalDateTime);
     }
 
     @Test

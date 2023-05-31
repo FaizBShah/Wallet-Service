@@ -88,7 +88,7 @@ public class Wallet {
         }
 
         if (amount <= 0) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot deposit 0 or less amount");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot withdraw 0 or less amount");
         }
 
         if (amount > this.amount) {

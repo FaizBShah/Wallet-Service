@@ -386,7 +386,7 @@ class WalletServiceTest {
     }
 
     @Test
-    void shouldTransferAmountToWalletThrowErrorIfUserTriesToTransferMoneyToANonActivatedWallet() {
+    void shouldTransferAmountToWalletThrowErrorIfUserTriesToTransferMoneyToAWalletWhichDoesNotExist() {
         Wallet fromWallet = Wallet.builder()
                 .id(1L)
                 .amount(10.00)
@@ -411,6 +411,42 @@ class WalletServiceTest {
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("The wallet you are trying to transfer does not exist", exception.getMessage());
+
+        verify(walletRepository, times(1)).findById(2L);
+        verify(walletRepository, never()).save(any(Wallet.class));
+        verify(walletRepository, never()).save(any(Wallet.class));
+    }
+
+    @Test
+    void shouldTransferAmountToWalletThrowErrorIfUserTriesToTransferMoneyToAWalletWhichIsNotActivated() {
+        Wallet fromWallet = Wallet.builder()
+                .id(1L)
+                .amount(10.00)
+                .currency(Currency.RUPEE)
+                .isActivated(true)
+                .build();
+
+        Wallet toWallet = Wallet.builder()
+                .id(2L)
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .firstName("Faiz")
+                .lastName("Shah")
+                .email("faizbshah2001@gmail.com")
+                .password("hjhjkjjkh")
+                .wallet(fromWallet)
+                .enabled(true)
+                .locked(false)
+                .build();
+
+        when(walletRepository.findById(2L)).thenReturn(Optional.of(toWallet));
+
+        AppException exception = assertThrows(AppException.class, () -> walletService.transferAmountToWallet(5.0, user, 2L));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("The wallet you are trying to transfer is not activated yet", exception.getMessage());
 
         verify(walletRepository, times(1)).findById(2L);
         verify(walletRepository, never()).save(any(Wallet.class));
