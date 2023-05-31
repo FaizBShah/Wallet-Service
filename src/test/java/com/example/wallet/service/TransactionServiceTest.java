@@ -66,7 +66,7 @@ class TransactionServiceTest {
 
         AppException exception = assertThrows(AppException.class, () -> transactionService.createTransferTransaction(transaction));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Transaction is not valid transfer transaction", exception.getMessage());
 
         verify(transactionRepository, never()).save(any(Transaction.class));
@@ -109,7 +109,7 @@ class TransactionServiceTest {
 
         AppException exception = assertThrows(AppException.class, () -> transactionService.createDepositTransaction(transaction));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Transaction is not valid deposit transaction", exception.getMessage());
 
         verify(transactionRepository, never()).save(any(Transaction.class));
@@ -152,7 +152,7 @@ class TransactionServiceTest {
 
         AppException exception = assertThrows(AppException.class, () -> transactionService.createWithdrawTransaction(transaction));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Transaction is not valid withdraw transaction", exception.getMessage());
 
         verify(transactionRepository, never()).save(any(Transaction.class));
@@ -211,7 +211,7 @@ class TransactionServiceTest {
 
         AppException exception = assertThrows(AppException.class, () -> transactionService.getAllTransactions(user));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("User's wallet is not activated yet", exception.getMessage());
 
         verify(transactionRepository, never()).getTransactionsByWalletId(any());

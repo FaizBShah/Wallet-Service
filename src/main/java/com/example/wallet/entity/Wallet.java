@@ -47,7 +47,7 @@ public class Wallet {
 
     public void activate(Currency currency) {
         if (isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is already activated");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Wallet is already activated");
         }
 
         if (currency == null) {
@@ -61,7 +61,7 @@ public class Wallet {
 
     public Transaction depositMoney(Double amount) {
         if (!isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is not activated yet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Wallet is not activated yet");
         }
 
         if (amount <= 0) {
@@ -84,7 +84,7 @@ public class Wallet {
 
     public Transaction withdrawMoney(Double amount) {
         if (!isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is not activated yet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Wallet is not activated yet");
         }
 
         if (amount <= 0) {
@@ -92,7 +92,7 @@ public class Wallet {
         }
 
         if (amount > this.amount) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Amount exceeded current balance in wallet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Amount exceeded current balance in wallet");
         }
 
         this.amount -= amount;
@@ -111,11 +111,11 @@ public class Wallet {
 
     public Transaction transferAmountTo(Double amount, Wallet toWallet) {
         if (!isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Wallet is not activated yet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Wallet is not activated yet");
         }
 
         if (!toWallet.isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "The wallet you are trying to transfer is not activated yet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "The wallet you are trying to transfer is not activated yet");
         }
 
         if (id.equals(toWallet.id)) {
@@ -123,7 +123,7 @@ public class Wallet {
         }
 
         if (amount > this.amount) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Cannot transfer more than your current balance");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Cannot transfer more than your current balance");
         }
 
         this.withdrawMoney(amount);

@@ -23,7 +23,7 @@ class WalletTest {
 
         AppException exception = assertThrows(AppException.class, () -> wallet.activate(Currency.RUPEE));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Wallet is already activated", exception.getMessage());
     }
 
@@ -59,7 +59,7 @@ class WalletTest {
 
         AppException exception = assertThrows(AppException.class, () -> wallet.depositMoney(5.0));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Wallet is not activated yet", exception.getMessage());
     }
 
@@ -98,7 +98,7 @@ class WalletTest {
 
         AppException exception = assertThrows(AppException.class, () -> wallet.withdrawMoney(5.0));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Wallet is not activated yet", exception.getMessage());
     }
 
@@ -122,7 +122,7 @@ class WalletTest {
 
         AppException exception = assertThrows(AppException.class, () -> wallet.withdrawMoney(1.0));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Amount exceeded current balance in wallet", exception.getMessage());
     }
 
@@ -167,7 +167,7 @@ class WalletTest {
 
         AppException exception = assertThrows(AppException.class, () -> fromWallet.transferAmountTo(2.0, toWallet));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Wallet is not activated yet", exception.getMessage());
     }
 
@@ -186,7 +186,7 @@ class WalletTest {
 
         AppException exception = assertThrows(AppException.class, () -> fromWallet.transferAmountTo(2.0, toWallet));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("The wallet you are trying to transfer is not activated yet", exception.getMessage());
     }
 
@@ -222,7 +222,7 @@ class WalletTest {
 
         AppException exception = assertThrows(AppException.class, () -> fromWallet.transferAmountTo(6.0, toWallet));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, exception.getStatus());
         assertEquals("Cannot transfer more than your current balance", exception.getMessage());
     }
 

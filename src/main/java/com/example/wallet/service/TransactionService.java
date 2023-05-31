@@ -19,7 +19,7 @@ public class TransactionService {
 
     public void createTransferTransaction(Transaction transaction) {
         if (!transaction.isValidTransferTransaction()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Transaction is not valid transfer transaction");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Transaction is not valid transfer transaction");
         }
 
         transactionRepository.save(transaction);
@@ -27,7 +27,7 @@ public class TransactionService {
 
     public void createDepositTransaction(Transaction transaction) {
         if (!transaction.isValidDepositTransaction()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Transaction is not valid deposit transaction");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Transaction is not valid deposit transaction");
         }
 
         transactionRepository.save(transaction);
@@ -35,7 +35,7 @@ public class TransactionService {
 
     public void createWithdrawTransaction(Transaction transaction) {
         if (!transaction.isValidWithdrawTransaction()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Transaction is not valid withdraw transaction");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Transaction is not valid withdraw transaction");
         }
 
         transactionRepository.save(transaction);
@@ -45,7 +45,7 @@ public class TransactionService {
         Wallet wallet = user.getWallet();
 
         if (!wallet.isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "User's wallet is not activated yet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "User's wallet is not activated yet");
         }
 
         return transactionRepository.getTransactionsByWalletId(wallet.getId());

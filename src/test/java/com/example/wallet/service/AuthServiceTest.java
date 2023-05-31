@@ -80,7 +80,7 @@ class AuthServiceTest {
                 "hjhjkjjkh"
         ));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
         assertEquals("User Already Exists", exception.getMessage());
 
         verify(userRepository, times(1)).findByEmail("faizbshah2001@gmail.com");
@@ -137,7 +137,7 @@ class AuthServiceTest {
 
         AppException exception = assertThrows(AppException.class, () -> authService.loginUser(user.getEmail(), user.getPassword(), mockRequest));
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
         assertEquals("User already logged in", exception.getMessage());
 
         verify(userRepository, times(1)).findByEmail(user.getEmail());

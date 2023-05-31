@@ -5,7 +5,6 @@ import com.example.wallet.entity.Transaction;
 import com.example.wallet.entity.User;
 import com.example.wallet.entity.Wallet;
 import com.example.wallet.exception.AppException;
-import com.example.wallet.repository.TransactionRepository;
 import com.example.wallet.repository.UserRepository;
 import com.example.wallet.repository.WalletRepository;
 import jakarta.transaction.Transactional;
@@ -29,7 +28,7 @@ public class WalletService {
         Wallet wallet = user.getWallet();
 
         if (wallet.isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "User already has a wallet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "User already has a wallet");
         }
 
         if (currency == null) {
@@ -71,7 +70,7 @@ public class WalletService {
 
     public Wallet getUserWallet(User user) {
         if (user == null) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Invalid User");
+            throw new AppException(HttpStatus.NOT_FOUND, "User Not Found");
         }
 
         return user.getWallet();
@@ -82,7 +81,7 @@ public class WalletService {
         Wallet fromWallet = user.getWallet();
 
         if (!fromWallet.isActivated()) {
-            throw new AppException(HttpStatus.NOT_FOUND, "User's wallet is not activated yet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "User's wallet is not activated yet");
         }
 
         if (amount <= 0) {
@@ -93,7 +92,7 @@ public class WalletService {
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "The wallet you are trying to transfer does not exist"));
 
         if (!toWallet.isActivated()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "The wallet you are trying to transfer is not activated yet");
+            throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "The wallet you are trying to transfer is not activated yet");
         }
 
         Transaction transaction = fromWallet.transferAmountTo(amount, toWallet);

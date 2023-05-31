@@ -31,7 +31,7 @@ public class AuthService {
 
     public User registerUser(String firstName, String lastName, String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "User Already Exists");
+            throw new AppException(HttpStatus.CONFLICT, "User Already Exists");
         }
 
         User user = User.builder()
@@ -55,7 +55,7 @@ public class AuthService {
         String jwtToken = jwtUtils.parseJwtToken(request);
 
         if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken) != null) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "User already logged in");
+            throw new AppException(HttpStatus.FORBIDDEN, "User already logged in");
         }
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
